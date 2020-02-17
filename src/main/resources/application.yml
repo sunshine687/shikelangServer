@@ -1,0 +1,31 @@
+#访问端口
+server:
+  port: 8084
+
+#spring
+spring:
+  #数据源配置
+  datasource:
+    name: redsheeDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://120.77.227.5:3306/shikelang?useUnicode=true&characterEncoding=gbk&useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Hongkong
+    username: shikelang
+    password: Huangwen930814
+    # '使用druid数据源'
+    type: com.alibaba.druid.pool.DruidDataSource
+    tomcat:
+      max-active: 10000
+
+#mybatis:
+  #实体类所做包
+#  typeAliasesPackage: com.sunshine687.redshee.pojo
+  #mapper.xml所在位置
+#  mapperLocations: classpath:/mappers/**.xml
+
+#解决请求跨域，接收来自url的请求
+corss:
+#  url: "http://localhost:63342"  #本地（IDEA）
+#  url: "http://127.0.0.1:8020"   #本地（Hbuilder）
+#  url: "http://154.209.4.82:80"  #远程
+  url: "*"   #全部
+  max: 10000

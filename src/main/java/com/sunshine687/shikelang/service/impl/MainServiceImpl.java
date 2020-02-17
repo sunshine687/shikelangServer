@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 
 @Service("mainService")
 public class MainServiceImpl implements IMainService{
+    private VideoUtils videoUtils = new VideoUtils();
+
     public void getVideoDetail(TypeEnum videoType){
-        VideoUtils videoUtils = new VideoUtils();
         Integer total = videoUtils.getListTotal(videoType);
         String AllVideoOfCurrentPage = videoUtils.getListByType(videoType);
         System.out.println(total);

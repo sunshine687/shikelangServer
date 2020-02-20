@@ -1,5 +1,6 @@
 package com.sunshine687.shikelang.pojo;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class Video {
     private Integer videoGroupId;
     private String instruction; //简介
     private Timestamp createTime; //创建时间
+    private Timestamp modifyTime; //修改时间
     private String updateTime; //更新时间
     private List<VideoItem> list; //视频剧集列表
 
@@ -40,6 +42,7 @@ public class Video {
                 ", videoGroupId=" + videoGroupId +
                 ", instruction='" + instruction + '\'' +
                 ", createTime=" + createTime +
+                ", modifyTime=" + modifyTime +
                 ", updateTime=" + updateTime +
                 ", list=" + list +
                 '}';
@@ -133,6 +136,14 @@ public class Video {
         this.createTime = createTime;
     }
 
+    public Timestamp getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(Timestamp modifyTime) {
+        this.modifyTime = modifyTime;
+    }
+
     public String getUpdateTime() {
         return updateTime;
     }
@@ -149,7 +160,7 @@ public class Video {
         this.list = list;
     }
 
-    public Video(Integer id, String name,String imgUrl, String updateStatus, Integer year, String area, String director, String mainPerformer, Integer videoGroupId, String instruction, Timestamp createTime, String updateTime, List<VideoItem> list) {
+    public Video(Integer id, String name,String imgUrl, String updateStatus, Integer year, String area, String director, String mainPerformer, Integer videoGroupId, String instruction, Timestamp createTime,  Timestamp modifyTime, String updateTime, List<VideoItem> list) {
         this.id = id;
         this.name = name;
         this.imgUrl = imgUrl;
@@ -161,6 +172,7 @@ public class Video {
         this.videoGroupId = videoGroupId;
         this.instruction = instruction;
         this.createTime = createTime;
+        this.modifyTime = modifyTime;
         this.updateTime = updateTime;
         this.list = list;
     }

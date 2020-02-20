@@ -1,10 +1,12 @@
 package com.sunshine687.shikelang;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
+@MapperScan(value = "com.sunshine687.shikelang")
 @SpringBootApplication(scanBasePackages="com.sunshine687")
 public class ShikelangApplication extends SpringBootServletInitializer {
 

@@ -48,6 +48,7 @@ public class MainController {
         if(type.equals("电视剧")){
             typeEnum = TypeEnum.DIANSHIJU;
         }
-        mainService.getVideoDetail(typeEnum);
+//        mainService.getVideoDetail(typeEnum);
+        mainService.getTest();
     }
 }

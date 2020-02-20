@@ -1,28 +1,28 @@
 package com.sunshine687.shikelang.service.impl;
 
-import com.sunshine687.shikelang.pojo.TypeEnum;
-import com.sunshine687.shikelang.pojo.Video;
-import com.sunshine687.shikelang.pojo.VideoGroupEnum;
-import com.sunshine687.shikelang.pojo.VideoItem;
+import com.sunshine687.shikelang.mappers.MainMapper;
+import com.sunshine687.shikelang.pojo.*;
 import com.sunshine687.shikelang.service.IMainService;
 import com.sunshine687.shikelang.util.VideoUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 @Service("mainService")
 public class MainServiceImpl implements IMainService{
+    @Autowired
+    private MainMapper mainMapper;
     private VideoUtils videoUtils = new VideoUtils();
 
     public void getVideoDetail(TypeEnum videoType){
+
         Integer total = videoUtils.getListTotal(videoType);
         String url_base = videoType.getUrl();
         String url_before = url_base.split("\\?")[0] + "?";
@@ -98,5 +98,10 @@ public class MainServiceImpl implements IMainService{
             System.out.println(ll.toString());
             break;
         }
+    }
+
+    public List<VideoGroup> getTest(){
+        System.out.println(mainMapper.getVideoGroup().toString());
+        return mainMapper.getVideoGroup();
     }
 }

@@ -6,7 +6,7 @@ server:
 spring:
   #数据源配置
   datasource:
-    name: redsheeDataSource
+    name: shikelangDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://120.77.227.5:3306/shikelang?useUnicode=true&characterEncoding=gbk&useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Hongkong
     username: shikelang

@@ -4,11 +4,13 @@ public class VideoItem {
     private Integer id;
     private String name;
     private String url;
+    private Integer videoId;
 
-    public VideoItem(Integer id, String name, String url) {
+    public VideoItem(Integer id, String name, String url,Integer videoId) {
         this.id = id;
         this.name = name;
         this.url = url;
+        this.videoId = videoId;
     }
 
     public VideoItem() {
@@ -38,12 +40,21 @@ public class VideoItem {
         this.url = url;
     }
 
+    public Integer getVideId() {
+        return videoId;
+    }
+
+    public void setVideId(Integer videoId) {
+        this.videoId = videoId;
+    }
+
     @Override
     public String toString() {
         return "VideoItem{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
+                ", videoId='" + videoId + '\'' +
                 '}';
     }
 }

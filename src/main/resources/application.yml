@@ -29,3 +29,8 @@ corss:
 #  url: "http://154.209.4.82:80"  #远程
   url: "*"   #全部
   max: 10000
+
+#日志配置,logging前面不能顶格，需要两个空格符
+  logging:
+    level: error
+    config: classpath:logback.xml

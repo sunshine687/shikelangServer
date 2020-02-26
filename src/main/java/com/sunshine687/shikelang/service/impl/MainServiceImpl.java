@@ -7,6 +7,8 @@ import com.sunshine687.shikelang.util.VideoUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +22,9 @@ public class MainServiceImpl implements IMainService{
     @Autowired
     private MainMapper mainMapper;
     private VideoUtils videoUtils = new VideoUtils();
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainServiceImpl.class);
 
     public void getVideoDetail(TypeEnum videoType){
-
         Integer total = videoUtils.getListTotal(videoType);
         String url_base = videoType.getUrl();
         String url_before = url_base.split("\\?")[0] + "?";
@@ -38,9 +40,11 @@ public class MainServiceImpl implements IMainService{
             for (Element element : elements) {
                 Video video = new Video();
                 String href = element.attr("href");
+                Integer video_flag = Integer.parseInt(href.split("\\?")[1].split("\\.")[0]);
                 String video_name = element.attr("title");
                 String video_imgUrl = element.attr("data-original");
                 String video_updateStatus = element.select("span.pic-text").text();
+                video.setFlag(video_flag);
                 video.setName(video_name);
                 video.setImgUrl(video_imgUrl);
                 video.setUpdateStatus(video_updateStatus);
@@ -80,22 +84,53 @@ public class MainServiceImpl implements IMainService{
                 //获取第五行数据（简介）
                 String video_instruction = elems.get(4).select("span.data").get(0).text();
                 video.setInstruction(video_instruction);
-                //获取剧集
-                Elements items = doc.select("#playlist1 ul.stui-content__playlist li a");
-                List<VideoItem> list = new ArrayList<>();
-                for (Element item : items) {
-                    VideoItem videoItem = new VideoItem();
-                    videoItem.setName(item.text());
-                    videoItem.setUrl(item.attr("href"));
-                    list.add(videoItem);
-                }
-                video.setList(list);
-                //创建时间
                 video.setCreateTime(new Timestamp(new Date().getTime()));
-                ll.add(video);
+                Integer video_is_success = mainMapper.insertVideo(video);//插入视频
+
+                if(video_is_success == 1){//新增视频成功之后将集数列表插入其中
+                    //获取剧集
+                    Elements items = doc.select("ul.stui-content__playlist").get(0).select("li a");
+                    List<VideoItem> list = new ArrayList<>();
+                    for (Element item : items) {
+                        VideoItem videoItem = new VideoItem();
+                        videoItem.setName(item.text());
+                        videoItem.setVideId(video.getId());
+                        //访问url
+                        Document doc1 = videoUtils.setConnectionParam(TypeEnum.BASEURL.getUrl() + item.attr("href"));
+                        String[] vars = doc1.select("div.embed-responsive").select("script").get(0).data().toString().split("var");
+                        String pn = "";
+                        String item_url = "";
+                        for (String var : vars) {
+                            if(var.contains("pn")){
+                                pn = var.split("=")[1];
+                                if(!"".equals(pn)){
+                                    pn = pn.substring(1,pn.length()-2);
+                                }
+                            }
+                            if (var.contains("now")) {
+                                item_url = var.split("=")[1];
+                            }
+                        }
+                        if(!"".equals(item_url)){
+                            item_url = item_url.substring(1,item_url.length()-2);
+                            if(item_url.contains(".m3u8")){//包含直接保存
+                                videoItem.setUrl(item_url);
+                            }else{//不包含则需要访问url进行提取
+                                LOGGER.error(TypeEnum.BASEURL.getUrl() + href);
+//                            Document doc2 = videoUtils.setConnectionParam(item_url);
+//                            //根据pn类型提取视频地址
+                            System.out.println(pn + "----" + item_url);
+//                            System.out.println(doc2.toString());
+                            }
+                        }
+                        list.add(videoItem);
+                        break;
+                    }
+                    video.setList(list);
+//                    mainMapper.insertVideoItems(list);//插入集数列表
+                }
 //                break;
             }
-            System.out.println(ll.toString());
             break;
         }
     }

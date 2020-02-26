@@ -23,6 +23,7 @@ public class Video {
     private Timestamp createTime; //创建时间
     private Timestamp modifyTime; //修改时间
     private String updateTime; //更新时间
+    private Integer flag; //识别码
     private List<VideoItem> list; //视频剧集列表
 
     public Video() {
@@ -44,6 +45,7 @@ public class Video {
                 ", createTime=" + createTime +
                 ", modifyTime=" + modifyTime +
                 ", updateTime=" + updateTime +
+                ", flag=" + flag +
                 ", list=" + list +
                 '}';
     }
@@ -152,6 +154,14 @@ public class Video {
         this.updateTime = updateTime;
     }
 
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
+    }
+
     public List<VideoItem> getList() {
         return list;
     }
@@ -160,7 +170,7 @@ public class Video {
         this.list = list;
     }
 
-    public Video(Integer id, String name,String imgUrl, String updateStatus, Integer year, String area, String director, String mainPerformer, Integer videoGroupId, String instruction, Timestamp createTime,  Timestamp modifyTime, String updateTime, List<VideoItem> list) {
+    public Video(Integer id, String name,String imgUrl, String updateStatus, Integer year, String area, String director, String mainPerformer, Integer videoGroupId, String instruction, Timestamp createTime,  Timestamp modifyTime, String updateTime,Integer flag, List<VideoItem> list) {
         this.id = id;
         this.name = name;
         this.imgUrl = imgUrl;
@@ -174,6 +184,7 @@ public class Video {
         this.createTime = createTime;
         this.modifyTime = modifyTime;
         this.updateTime = updateTime;
+        this.flag = flag;
         this.list = list;
     }
 }

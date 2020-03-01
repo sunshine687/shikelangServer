@@ -22,6 +22,14 @@ public interface MainMapper {
     Integer insertVideo(Video video);
 
     /**
+     *
+     * @param video 单个视频对象
+     * @return 成功记录数
+     */
+    @Insert("update video set pn = #{pn} where id = #{id}")
+    Integer updateVideo(Video video);
+
+    /**
      * 批量添加视频对象
      * @param result 视频对象集合
      * @return 是否成功
@@ -31,6 +39,7 @@ public interface MainMapper {
             "  (#{item.name},#{item.imgUrl},#{item.updateStatus},#{item.year},#{item.area},#{item.director},#{item.mainPerformer},#{item.videoGroupId},#{item.instruction},#{item.createTime,jdbcType=TIMESTAMP},#{item.updateTime},#{item.flag})\n" +
             "  </foreach> </script>")
     Boolean insertVideos(@Param(value = "result") List<Video> result);
+
 
     /**
      * 批量添加集数

@@ -20,8 +20,8 @@ public class VideoUtils {
      */
     public Integer getListTotal(TypeEnum videoType){
         String urlStr = videoType.getUrl();
-        Document doc = setConnectionParam(urlStr);
         int total = 1;
+        Document doc = setConnectionParam(urlStr);
         Elements elements = doc.select("ul.myui-page .visible-xs a.btn-warm");
         String totalStr = elements.get(0).html();
         total = Integer.parseInt(totalStr.substring(totalStr.indexOf("/") + 1));
@@ -36,9 +36,10 @@ public class VideoUtils {
     public Document setConnectionParam(String urlStr){
         Document doc = null;
         InputStream in = null;
+        HttpURLConnection conn = null;
         try {
             URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            conn = (HttpURLConnection)url.openConnection();
             //使用代理且需要登录，添加这段代码
             /*conn.setRequestProperty("Proxy-Authorization", " Basic " +
             new BASE64Encoder().encode("用户名:密码".getBytes()));*/
@@ -46,14 +47,22 @@ public class VideoUtils {
             conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "text/html");
-            conn.setRequestProperty("Connection", "close");
+            conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.setDoOutput(true);
             conn.setUseCaches(false);
-            conn.setConnectTimeout(10 * 1000);
-            in = conn.getInputStream();
-            String encode = "utf-8";
-            doc = Jsoup.parse(in,encode,urlStr);
+            conn.setConnectTimeout(60 * 1000);
+            conn.setReadTimeout(60 * 1000);
+            conn.connect();
+            int state = conn.getResponseCode();
+            if(state == 200){
+                in = conn.getInputStream();
+                String encode = "utf-8";
+                doc = Jsoup.parse(in,encode,urlStr);
+            }
         }catch (Exception e) {
-                e.printStackTrace();
+            System.out.println("工具内处理异常"+urlStr);
+            doc = null;
+            e.printStackTrace();
         }finally {
             if(null != in){
                 try {
@@ -61,6 +70,9 @@ public class VideoUtils {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+            if(null != conn){
+                conn.disconnect();
             }
         }
         return doc;

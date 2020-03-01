@@ -4,12 +4,14 @@ public class VideoItem {
     private Integer id;
     private String name;
     private String url;
+    private String pn;
     private Integer videoId;
 
-    public VideoItem(Integer id, String name, String url,Integer videoId) {
+    public VideoItem(Integer id, String name, String url,String pn,Integer videoId) {
         this.id = id;
         this.name = name;
         this.url = url;
+        this.pn = pn;
         this.videoId = videoId;
     }
 
@@ -40,6 +42,14 @@ public class VideoItem {
         this.url = url;
     }
 
+    public String getPn() {
+        return pn;
+    }
+
+    public void setPn(String pn) {
+        this.pn = pn;
+    }
+
     public Integer getVideId() {
         return videoId;
     }
@@ -54,6 +64,7 @@ public class VideoItem {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
+                ", pn='" + pn + '\'' +
                 ", videoId='" + videoId + '\'' +
                 '}';
     }

@@ -131,76 +131,83 @@ public class MainServiceImpl implements IMainService{
         Elements items = doc.select("ul.stui-content__playlist").get(index).select("li a");
         for (Element item : items) {
             VideoItem videoItem = new VideoItem();
-            try{
-                Thread.sleep(200);//延迟200毫秒
-            }catch(Exception e){
-                System.out.println("******* 线程异常 ********");
-            }
+//            try{
+//                Thread.sleep(100);//延迟200毫秒
+//            }catch(Exception e){
+//                System.out.println("******* 线程异常 ********");
+//            }
             System.out.println(item.text());
             videoItem.setName(item.text());
             videoItem.setVideId(video.getId());
             //访问url
             Document doc1 = videoUtils.setConnectionParam(TypeEnum.BASEURL.getUrl() + item.attr("href"));
-            String[] vars = doc1.select("div.embed-responsive").select("script").get(0).data().toString().split("var");
-            String pn = "";
-            String item_url = "";
-            for (String var : vars) {
-                if(var.contains("pn=")){
-                    pn = var.split("=")[1];
-                    if(!"".equals(pn)){
-                        pn = pn.substring(1,pn.length()-3);
+            if(doc1 != null){
+                String[] vars = doc1.select("div.embed-responsive").select("script").get(0).data().toString().split("var");
+                String pn = "";
+                String item_url = "";
+                for (String var : vars) {
+                    if(var.contains("pn=")){
+                        pn = var.split("=")[1];
+                        if(!"".equals(pn)){
+                            pn = pn.substring(1,pn.length()-3);
+                        }
+                    }
+                    if (var.contains("now=")) {
+                        item_url = var.split("=")[1];
                     }
                 }
-                if (var.contains("now=")) {
-                    item_url = var.split("=")[1];
-                }
-            }
-            videoItem.setPn(pn);
-            if(!"".equals(item_url)){
-                item_url = item_url.substring(1,item_url.length()-2);
-                if(item_url.contains(".m3u8")){//包含直接保存
-                    videoItem.setUrl(item_url);
-                }else{//不包含则需要访问url进行提取
-                    doc2 = videoUtils.setConnectionParam(item_url);
-                    String videoItem_url = "";
-                    if(doc2 != null){
-                        Elements els = doc2.select("script");
-                        String scriptString = "";
-                        for (Element ele : els) {
-                            String tempStr = ele.data().toString().replaceAll(" ","");
-                            if(tempStr.length() > 88){
-                                scriptString = tempStr;
-                                break;
+                videoItem.setPn(pn);
+                if(!"".equals(item_url)){
+                    item_url = item_url.substring(1,item_url.length()-2);
+                    if(item_url.contains(".m3u8")){//包含直接保存
+                        videoItem.setUrl(item_url);
+                    }else{//不包含则需要访问url进行提取
+                        doc2 = videoUtils.setConnectionParam(item_url);
+                        String videoItem_url = "";
+                        if(doc2 != null){
+                            Elements els = doc2.select("script");
+                            String scriptString = "";
+                            for (Element ele : els) {
+                                String tempStr = ele.data().toString().replaceAll(" ","");
+                                if(tempStr.length() > 88){
+                                    scriptString = tempStr;
+                                    break;
+                                }
                             }
-                        }
 
-                        if(!"".equals(scriptString)){
-                            //根据pn类型提取视频地址
-                            if("zkyun".equals(pn)){
-                                videoItem_url = scriptString.split("var")[3].split("url:")[1];
-                                videoItem_url = videoItem_url.substring(1,videoItem_url.indexOf(".m3u8") + 5);
-                            }else if("kuyun".equals(pn)){
-                                videoItem_url = scriptString.split("main=")[1];
-                                videoItem_url = videoItem_url.substring(1,videoItem_url.indexOf(".m3u8") + 5);
+                            if(!"".equals(scriptString)){
+                                //根据pn类型提取视频地址
+                                if("zkyun".equals(pn)){
+                                    videoItem_url = scriptString.split("var")[3].split("url:")[1];
+                                    videoItem_url = videoItem_url.substring(1,videoItem_url.indexOf(".m3u8") + 5);
+                                }else if("kuyun".equals(pn)){
+                                    videoItem_url = scriptString.split("main=")[1];
+                                    videoItem_url = videoItem_url.substring(1,videoItem_url.indexOf(".m3u8") + 5);
+                                }else{
+                                    message = "保存" + video.getName() + item.text() + "失败，原因是没有pn：'" + pn + "'的处理方案";
+                                    LOGGER.error(message);
+                                    System.out.println(message);
+                                }
+                                if(!"".equals(videoItem_url) && !videoItem_url.contains("http")){
+                                    videoItem_url = item_url.substring(0,item_url.indexOf("/",10)) + videoItem_url;
+                                }
                             }else{
-                                message = "保存" + video.getName() + item.text() + "失败，原因是没有pn：'" + pn + "'的处理方案";
+                                message = "保存" + video.getName() + item.text() + "失败，原因是原网页没有script标签无法提取视频地址";
                                 LOGGER.error(message);
                                 System.out.println(message);
                             }
-                            if(!"".equals(videoItem_url) && !videoItem_url.contains("http")){
-                                videoItem_url = item_url.substring(0,item_url.indexOf("/",10)) + videoItem_url;
-                            }
                         }else{
-                            message = "保存" + video.getName() + item.text() + "失败，原因是原网页没有script标签无法提取视频地址";
-                            LOGGER.error(message);
-                            System.out.println(message);
+                            list = null;//如果发现其中一个为空则返回null
+                            break;
                         }
-                    }else{
-                        list = null;//如果发现其中一个为空则返回null
-                        break;
+                        videoItem.setUrl(videoItem_url);
                     }
-                    videoItem.setUrl(videoItem_url);
                 }
+            }else{
+                videoItem.setUrl("");
+                message = "保存" + video.getName() + item.text() + "失败，原因是访问链接：" + TypeEnum.BASEURL.getUrl() + item.attr("href") + "失败";
+                LOGGER.error(message);
+                System.out.println(message);
             }
             list.add(videoItem);
         }

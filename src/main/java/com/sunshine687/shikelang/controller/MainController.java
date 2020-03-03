@@ -3,12 +3,15 @@ package com.sunshine687.shikelang.controller;
 import com.sunshine687.shikelang.pojo.TypeEnum;
 import com.sunshine687.shikelang.service.IMainService;
 import com.sunshine687.shikelang.util.VideoUtils;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Date;
 
 
 //@CrossOrigin(origins = "*", maxAge = 10000)   //处理跨域请求(接收来自某个地址的跨域请求)
@@ -32,7 +35,12 @@ public class MainController {
      */
     @RequestMapping("/test")
     public String test(){
-        return new VideoUtils().setConnectionParam("https://zk.yiya520.com/share/2uqpGoq70JTS3V0m").toString();
+        Document doc = new VideoUtils().setConnectionParam("http://www.panpanso.com/video/?50553-4-0.html");
+        if(doc != null){
+            return doc.toString();
+        }else{
+            return "doc为null";
+        }
     }
 
     /**
@@ -45,6 +53,5 @@ public class MainController {
             typeEnum = TypeEnum.DIANSHIJU;
         }
         mainService.getVideoDetail(typeEnum);
-//        mainService.getTest();
     }
 }

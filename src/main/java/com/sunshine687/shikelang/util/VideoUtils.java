@@ -5,8 +5,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -51,13 +53,25 @@ public class VideoUtils {
             conn.setDoOutput(true);
             conn.setUseCaches(false);
             conn.setConnectTimeout(60 * 1000);
-            conn.setReadTimeout(60 * 1000);
+            conn.setReadTimeout(100 * 1000); //读取时间100s
             conn.connect();
+            Thread.sleep(5 * 1000);//睡眠5秒钟，让数据读取完毕
             int state = conn.getResponseCode();
             if(state == 200){
                 in = conn.getInputStream();
                 String encode = "utf-8";
-                doc = Jsoup.parse(in,encode,urlStr);
+                InputStreamReader inputStreamReader = new InputStreamReader(
+                        in, encode);
+                BufferedReader bufferedReader = new BufferedReader(
+                        inputStreamReader);
+                StringBuffer sb = new StringBuffer();
+                int BUFFER_SIZE = 10240;
+                char[] buffer = new char[BUFFER_SIZE]; // or some other size,
+                int charsRead = 0;
+                while ( (charsRead  = bufferedReader.read(buffer, 0, BUFFER_SIZE)) != -1) {
+                    sb.append(buffer, 0, charsRead);
+                }
+                doc = Jsoup.parse(sb.toString());
             }
         }catch (Exception e) {
             System.out.println("工具内处理异常"+urlStr);

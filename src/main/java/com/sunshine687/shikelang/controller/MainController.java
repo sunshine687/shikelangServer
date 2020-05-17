@@ -2,10 +2,7 @@ package com.sunshine687.shikelang.controller;
 
 import com.sunshine687.shikelang.pojo.TypeEnum;
 import com.sunshine687.shikelang.service.IMainService;
-import com.sunshine687.shikelang.util.QuartzManager;
 import com.sunshine687.shikelang.util.VideoUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;

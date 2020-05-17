@@ -1,9 +1,6 @@
 package com.sunshine687.shikelang;
 
-import com.sunshine687.shikelang.util.QuartzManager;
 import org.mybatis.spring.annotation.MapperScan;
-import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;

@@ -4,14 +4,18 @@ public class VideoItem {
     private Integer id;
     private String name;
     private String url;
-    private String pn;
+    private String tempUrl;
+    private String itemHref;
+    private Integer updateIndex;
     private Integer videoId;
 
-    public VideoItem(Integer id, String name, String url,String pn,Integer videoId) {
+    public VideoItem(Integer id, String name, String url,String tempUrl,String itemHref,Integer updateIndex,Integer videoId) {
         this.id = id;
         this.name = name;
         this.url = url;
-        this.pn = pn;
+        this.tempUrl = tempUrl;
+        this.itemHref = itemHref;
+        this.updateIndex = updateIndex;
         this.videoId = videoId;
     }
 
@@ -42,20 +46,36 @@ public class VideoItem {
         this.url = url;
     }
 
-    public String getPn() {
-        return pn;
+    public String getTempUrl() {
+        return tempUrl;
     }
 
-    public void setPn(String pn) {
-        this.pn = pn;
+    public void setTempUrl(String tempUrl) {
+        this.tempUrl = tempUrl;
     }
 
-    public Integer getVideId() {
+    public String getItemHref() {
+        return itemHref;
+    }
+
+    public void setItemHref(String itemHref) {
+        this.itemHref = itemHref;
+    }
+
+    public Integer getVideoId() {
         return videoId;
     }
 
-    public void setVideId(Integer videoId) {
+    public void setVideoId(Integer videoId) {
         this.videoId = videoId;
+    }
+
+    public Integer getUpdateIndex() {
+        return updateIndex;
+    }
+
+    public void setUpdateIndex(Integer updateIndex) {
+        this.updateIndex = updateIndex;
     }
 
     @Override
@@ -64,7 +84,9 @@ public class VideoItem {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
-                ", pn='" + pn + '\'' +
+                ", tempUrl='" + tempUrl + '\'' +
+                ", itemHref='" + itemHref + '\'' +
+                ", updateIndex='" + updateIndex + '\'' +
                 ", videoId='" + videoId + '\'' +
                 '}';
     }

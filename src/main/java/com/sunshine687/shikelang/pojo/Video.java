@@ -11,19 +11,17 @@ public class Video {
     private String name; //视频名称
     private String imgUrl; //视频封面地址
     private String updateStatus; //更新状态，如：更新至36集
-    private Integer year; //年份
+    private String year; //年份
     private String area; //地区
     private String director; //导演
     private String mainPerformer; //霍建华,李兰杰（多个用英文,隔开）
-    //视频分类id，电影:1|电视剧:2|动漫:3|综艺:4|纪录片:5|日韩剧:6|欧美剧:7|港台剧:8|大陆剧:9|动作片:10|
-    //爱情片:11|科幻片:12|恐怖片:13|喜剧片:14|剧情片:15|战争片:16
-    private Integer videoGroupId;
+    private Integer videoGroupId;//组别id，电影:1|电视剧:2|动漫:3|综艺:4|纪录片:5
+    private String type;//分类，如国产剧，日韩剧
     private String instruction; //简介
     private Timestamp createTime; //创建时间
     private Timestamp modifyTime; //修改时间
     private String updateTime; //更新时间
-    private Integer flag; //识别码
-    private String pn;
+    private String updateUrl; //用于更新视频的url
     private List<VideoItem> list; //视频剧集列表
 
     public Video() {
@@ -41,12 +39,12 @@ public class Video {
                 ", director='" + director + '\'' +
                 ", mainPerformer='" + mainPerformer + '\'' +
                 ", videoGroupId=" + videoGroupId +
+                ", type=" + type +
                 ", instruction='" + instruction + '\'' +
                 ", createTime=" + createTime +
                 ", modifyTime=" + modifyTime +
                 ", updateTime=" + updateTime +
-                ", flag=" + flag +
-                ", pn=" + pn +
+                ", updateUrl=" + updateUrl +
                 ", list=" + list +
                 '}';
     }
@@ -83,11 +81,11 @@ public class Video {
         this.updateStatus = updateStatus;
     }
 
-    public Integer getYear() {
+    public String getYear() {
         return year;
     }
 
-    public void setYear(Integer year) {
+    public void setYear(String year) {
         this.year = year;
     }
 
@@ -123,6 +121,14 @@ public class Video {
         this.videoGroupId = videoGroupId;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String getInstruction() {
         return instruction;
     }
@@ -155,20 +161,12 @@ public class Video {
         this.updateTime = updateTime;
     }
 
-    public Integer getFlag() {
-        return flag;
+    public String getUpdateUrl() {
+        return updateUrl;
     }
 
-    public void setFlag(Integer flag) {
-        this.flag = flag;
-    }
-
-    public String getPn() {
-        return pn;
-    }
-
-    public void setPn(String pn) {
-        this.pn = pn;
+    public void setUpdateUrl(String updateUrl) {
+        this.updateUrl = updateUrl;
     }
 
     public List<VideoItem> getList() {
@@ -179,7 +177,7 @@ public class Video {
         this.list = list;
     }
 
-    public Video(Integer id, String name,String imgUrl, String updateStatus, Integer year, String area, String director, String mainPerformer, Integer videoGroupId, String instruction, Timestamp createTime,  Timestamp modifyTime, String updateTime,Integer flag,String pn, List<VideoItem> list) {
+    public Video(Integer id, String name,String imgUrl, String updateStatus, String year, String area, String director, String mainPerformer, Integer videoGroupId, String type,String instruction, Timestamp createTime,  Timestamp modifyTime, String updateTime, String updateUrl, List<VideoItem> list) {
         this.id = id;
         this.name = name;
         this.imgUrl = imgUrl;
@@ -189,12 +187,12 @@ public class Video {
         this.director = director;
         this.mainPerformer = mainPerformer;
         this.videoGroupId = videoGroupId;
+        this.type = type;
         this.instruction = instruction;
         this.createTime = createTime;
         this.modifyTime = modifyTime;
         this.updateTime = updateTime;
-        this.flag = flag;
-        this.pn = pn;
+        this.updateUrl = updateUrl;
         this.list = list;
     }
 }

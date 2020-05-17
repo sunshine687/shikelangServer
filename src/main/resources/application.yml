@@ -1,6 +1,6 @@
 #访问端口
 server:
-  port: 8084
+  port: 8085
 
 #spring
 spring:
@@ -21,6 +21,10 @@ spring:
 #  typeAliasesPackage: com.sunshine687.redshee.pojo
   #mapper.xml所在位置
 #  mapperLocations: classpath:/mappers/**.xml
+
+#自定义参数
+cus:
+  timeOutTime: 150
 
 #解决请求跨域，接收来自url的请求
 corss:

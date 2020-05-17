@@ -1,16 +1,36 @@
 package com.sunshine687.shikelang.util;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.sunshine687.shikelang.pojo.TypeEnum;
+import com.sunshine687.shikelang.pojo.Video;
+import com.sunshine687.shikelang.pojo.VideoItem;
+import org.apache.http.*;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * 视频工具类
@@ -23,10 +43,14 @@ public class VideoUtils {
     public Integer getListTotal(TypeEnum videoType){
         String urlStr = videoType.getUrl();
         int total = 1;
-        Document doc = setConnectionParam(urlStr);
-        Elements elements = doc.select("ul.myui-page .visible-xs a.btn-warm");
-        String totalStr = elements.get(0).html();
-        total = Integer.parseInt(totalStr.substring(totalStr.indexOf("/") + 1));
+        Document doc = httpGet_setTime(urlStr, 20);
+        if(doc != null){
+            Elements elements = doc.select("a.fed-page-jump");
+            String totalStr = elements.get(0).attr("data-total");
+            total = Integer.parseInt(totalStr);
+        }else{
+            System.out.println("获取页面总页码发出异常");
+        }
         return total;
     }
 
@@ -49,15 +73,13 @@ public class VideoUtils {
             conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-type", "text/html");
-            conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.setRequestProperty("Connection", "close");
             conn.setDoOutput(true);
+            conn.setDoInput(true);
             conn.setUseCaches(false);
             conn.setConnectTimeout(60 * 1000);
             conn.setReadTimeout(100 * 1000); //读取时间100s
-            conn.connect();
-            Thread.sleep(5 * 1000);//睡眠5秒钟，让数据读取完毕
-            int state = conn.getResponseCode();
-            if(state == 200){
+            if(conn.getResponseCode() == 200){
                 in = conn.getInputStream();
                 String encode = "utf-8";
                 InputStreamReader inputStreamReader = new InputStreamReader(
@@ -90,5 +112,285 @@ public class VideoUtils {
             }
         }
         return doc;
+    }
+
+
+    /**
+     * 使用httpClient访问url
+     * @param urlStr url
+     * @return Document
+     */
+    public Document httpGet(String urlStr){
+        Document doc = null;   //get请求返回结果
+        try {
+            CloseableHttpClient httpclient =  HttpClientBuilder.create().build();
+            //发送get请求
+            HttpGet request = new HttpGet(urlStr);
+            URI realUrl = new URI(urlStr);
+            request.setURI(realUrl);
+            request.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
+            request.setHeader("Content-type", "text/html");
+            request.setHeader("Connection", "close");
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(10 * 1000).setConnectTimeout(60 * 1000).build();//设置请求和传输超时时间
+            request.setConfig(requestConfig);
+            HttpResponse response = httpclient.execute(request);
+
+            /* 请求发送成功，并得到响应 */
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                /*读取服务器返回过来的json字符串数据**/
+                String strResult = EntityUtils.toString(response.getEntity());
+                doc = Jsoup.parse(strResult);
+            } else {
+                System.out.println("get请求提交失败:" + urlStr);
+            }
+        } catch (Exception e) {
+
+        }
+        return doc;
+    }
+
+    /**
+     * post请求以及参数是json
+     */
+    public String doPostForJson(String url, String jsonParams) {
+        String returnStr = "";
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);
+        RequestConfig requestConfig = RequestConfig.custom().
+                setConnectTimeout(180 * 1000).setConnectionRequestTimeout(180 * 1000)
+                .setSocketTimeout(180 * 1000).setRedirectsEnabled(true).build();
+        httpPost.setConfig(requestConfig);
+        httpPost.setHeader("Content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(jsonParams, ContentType.create("application/json", "utf-8")));
+        try {
+
+            //执行请求
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            //获取返回值
+            String html = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            if(!"".equals(html)){
+                returnStr = html;
+            }
+            return returnStr;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != httpClient) {
+                try {
+                    httpClient.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return returnStr;
+    }
+
+    /**
+     * key-value形式发送post
+     * @param url 请求地址
+     * @param paramsMap 参数map
+     * @return 返回值
+     */
+    public String doPost(String url, Map<String, Object> paramsMap) {
+        CloseableHttpClient closeableHttpClient = HttpClients.createDefault();
+        //配置连接超时时间
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(5000)
+                .setConnectionRequestTimeout(5000)
+                .setSocketTimeout(5000)
+                .setRedirectsEnabled(true)
+                .build();
+        HttpPost httpPost = new HttpPost(url);
+        //设置超时时间
+        httpPost.setConfig(requestConfig);
+
+        //装配post请求参数
+        List<NameValuePair> list = new ArrayList<NameValuePair>();
+        for (String key : paramsMap.keySet()) {
+            list.add(new BasicNameValuePair(key, String.valueOf(paramsMap.get(key))));
+        }
+
+        try {
+            //将参数进行编码为合适的格式,如将键值对编码为param1=value1&param2=value2
+            UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(list, "utf-8");
+            httpPost.setEntity(urlEncodedFormEntity);
+
+            //执行 post请求
+            CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpPost);
+            String strRequest = "";
+            if (null != closeableHttpResponse && !"".equals(closeableHttpResponse)) {
+                System.out.println(closeableHttpResponse.getStatusLine().getStatusCode());
+                if (closeableHttpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    HttpEntity httpEntity = closeableHttpResponse.getEntity();
+                    strRequest = EntityUtils.toString(httpEntity);
+                } else {
+                    strRequest = "Error Response" + closeableHttpResponse.getStatusLine().getStatusCode();
+                }
+            }
+            return strRequest;
+
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+            return "协议异常";
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "解析异常";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "传输异常";
+        } finally {
+            try {
+                if (closeableHttpClient != null) {
+                    closeableHttpClient.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * 使用httpClient访问url
+     * @param urlStr url
+     * @param longTime 单位秒
+     * @return Document
+     */
+    public Document httpGet_setTime(String urlStr,Integer longTime){
+        Document doc = null;   //get请求返回结果
+        try {
+            CloseableHttpClient httpclient =  HttpClientBuilder.create().build();
+            //发送get请求
+            HttpGet request = new HttpGet(urlStr);
+            URI realUrl = new URI(urlStr);
+            request.setURI(realUrl);
+            request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:39.0) Gecko/20100101 Firefox/39.0");
+            request.setHeader("Content-type", "text/html");
+            request.setHeader("Connection", "keep-alive");
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(longTime * 1000).setConnectTimeout(60 * 1000).build();//设置请求和传输超时时间
+            request.setConfig(requestConfig);
+            HttpResponse response = httpclient.execute(request);
+
+            /* 请求发送成功，并得到响应 */
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                /*读取服务器返回过来的json字符串数据**/
+                String strResult = EntityUtils.toString(response.getEntity());
+                doc = Jsoup.parse(strResult);
+                if(doc == null){
+                    doc = httpGet_setTime(urlStr,longTime);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("get请求发生异常,获取页面源码失败");
+            doc = null;
+        }
+        return doc;
+    }
+
+    /**
+     * 获取页面文档字串(等待异步JS执行)
+     *
+     * @param url 页面URL
+     * @return
+     * @throws Exception
+     */
+    public String getHtmlPageResponse(String url) {
+        String result = "";
+        final WebClient webClient = new WebClient(BrowserVersion.CHROME);
+        webClient.getOptions().setThrowExceptionOnScriptError(false);//当JS执行出错的时候是否抛出异常
+        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);//当HTTP的状态非200时是否抛出异常
+        webClient.getOptions().setActiveXNative(false);
+        webClient.getOptions().setCssEnabled(false);//是否启用CSS
+//        webClient.getOptions().setJavaScriptEnabled(true); //很重要，启用JS
+//        webClient.setAjaxController(new NicelyResynchronizingAjaxController());//很重要，设置支持AJAX
+
+        webClient.getOptions().setTimeout(15 * 1000);//设置“浏览器”的请求超时时间
+        webClient.getCache().setMaxSize(400);
+//        webClient.setJavaScriptTimeout(30 * 1000);//设置JS执行的超时时间
+
+        HtmlPage page;
+        try {
+            page = webClient.getPage(url);
+            if(page != null){
+                result = page.asXml();
+            }
+            webClient.close();
+            System.gc();
+        } catch (Exception e) {
+            result = "";
+            webClient.close();
+            System.gc();
+        }
+        webClient.waitForBackgroundJavaScript(1000);//该方法阻塞线程
+        return result;
+    }
+
+    /**
+     * 判断库中是否存在视频，存在则返回video实例，否则返回null
+     * @param videos videos
+     * @param updateHref updateHref
+     * @return return
+     */
+    public Video isExistVideo(List<Video> videos,String updateHref){
+        Video v = null;
+        for(Video video : videos){
+            if(updateHref.equals(video.getUpdateUrl())){
+                v = video;
+                break;
+            }
+        }
+        return v;
+    }
+
+    /**
+     * 判断库中是否存在视频剧集，存在则返回videoItem实例，否则返回null
+     * @param videoItems 库中的剧集列表
+     * @param videoItemName 获取到的视频剧集名称
+     * @return return
+     */
+    public VideoItem isExistVideoItem(List<VideoItem> videoItems, String videoItemName){
+        VideoItem v = null;
+        for(VideoItem videoItem : videoItems){
+            if(videoItemName.equals(videoItem.getName())){
+                v = videoItem;
+                break;
+            }
+        }
+        return v;
+    }
+
+    /**
+     * 深度克隆
+     * @param src
+     * @param <T>
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public <T> List<T> deepCopy(List<T> src) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(byteOut);
+        out.writeObject(src);
+
+        ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+        ObjectInputStream in = new ObjectInputStream(byteIn);
+        @SuppressWarnings("unchecked")
+        List<T> dest = (List<T>) in.readObject();
+        return dest;
     }
 }

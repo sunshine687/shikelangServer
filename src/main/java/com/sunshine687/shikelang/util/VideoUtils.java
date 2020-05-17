@@ -364,11 +364,20 @@ public class VideoUtils {
      * @return return
      */
     public VideoItem isExistVideoItem(List<VideoItem> videoItems, String videoItemName){
+        List<String> rule = getRules(videoItemName);
         VideoItem v = null;
         for(VideoItem videoItem : videoItems){
-            if(videoItemName.equals(videoItem.getName())){
-                v = videoItem;
-                break;
+            if(rule == null){
+                if(videoItemName.equals(videoItem.getName())){
+                    v = videoItem;
+                    break;
+                }
+            }else{
+                //判断从库中获取到的名称是否符合规则之一，如果符合则存在，否则不存在
+                if(rule.contains(videoItem.getName())){
+                    v = videoItem;
+                    break;
+                }
             }
         }
         return v;
@@ -392,5 +401,74 @@ public class VideoUtils {
         @SuppressWarnings("unchecked")
         List<T> dest = (List<T>) in.readObject();
         return dest;
+    }
+
+    /**
+     * 获取兼容规则
+     * @return
+     */
+    public List<String> getRules(String videoItemName){
+        List<List<String>> rules = new ArrayList<>();
+        List<String> one = new ArrayList<>();
+        one.add("第一集");
+        one.add("第1集");
+        one.add("第01集");
+        rules.add(one);
+
+        List<String> two = new ArrayList<>();
+        two.add("第二集");
+        two.add("第2集");
+        two.add("第02集");
+        rules.add(two);
+
+        List<String> three = new ArrayList<>();
+        three.add("第三集");
+        three.add("第3集");
+        three.add("第03集");
+        rules.add(three);
+
+        List<String> four = new ArrayList<>();
+        four.add("第四集");
+        four.add("第4集");
+        four.add("第04集");
+        rules.add(four);
+
+        List<String> five = new ArrayList<>();
+        five.add("第五集");
+        five.add("第5集");
+        five.add("第05集");
+        rules.add(five);
+
+        List<String> six = new ArrayList<>();
+        six.add("第六集");
+        six.add("第6集");
+        six.add("第06集");
+        rules.add(six);
+
+        List<String> seven = new ArrayList<>();
+        seven.add("第七集");
+        seven.add("第7集");
+        seven.add("第07集");
+        rules.add(seven);
+
+        List<String> eight = new ArrayList<>();
+        eight.add("第八集");
+        eight.add("第8集");
+        eight.add("第08集");
+        rules.add(eight);
+
+        List<String> nine = new ArrayList<>();
+        nine.add("第九集");
+        nine.add("第9集");
+        nine.add("第09集");
+        rules.add(nine);
+
+        for (List<String> rule : rules) {
+            //根据name匹配规则，有则返回规则列表，如果没有匹配到则返回null
+            if (rule.contains(videoItemName)) {
+                return rule;
+            }
+        }
+        return null;
     }
 }

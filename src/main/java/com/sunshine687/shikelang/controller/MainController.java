@@ -43,9 +43,9 @@ public class MainController {
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMdd") ;
 
     //每天小时数为3的倍数时，执行任务
-    @Scheduled(cron = "0 0 0/3 * * ?")
+    @Scheduled(cron = "0 0 0,3,6,9,12,15,18,21 * * ?")
     public void task() {
-        updateDianShiJu();
+//        updateDianShiJu();
     }
 
     /**
@@ -54,10 +54,7 @@ public class MainController {
      */
     @RequestMapping("/test")
     public String test(){
-        Integer startDate = Integer.parseInt(dateFormat.format(new Date(new Date().getTime() - 24 * 60 * 60 * 1000)));
-        Integer endtDate = Integer.parseInt(dateFormat.format(new Date()));
-        System.out.println(startDate);
-        System.out.println(endtDate);
+        System.out.println(videoUtils.getRules("第1集").toString());
 //        Document dd = videoUtils.httpGet_setTime("https://iqiyi.cdn8-okzy.com/share/56a8da1d3bcb2e9b334a778be5b1d781",30);
 //        System.out.println(dd);
 //       mainService.getCurrentVideo(TypeEnum.DIANSHIJU_GC,"/vod/detail/id/35292.html");

@@ -132,6 +132,7 @@ public class MainServiceImpl implements IMainService {
                                 //需要插入视频并获取剧集
                                 List<VideoItem> videoItems = getItemsOfVideo(video,doc,href,dbItems);
                                 if(videoItems != null && videoItems.size() > 0){
+                                    video.setId(v.getId());
                                     mainMapper.updateVideo(video);//更新视频状态、更新时间
                                     for (VideoItem videoItem : videoItems) {
                                         videoItem.setVideoId(v.getId());

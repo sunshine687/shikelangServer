@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.sunshine687</groupId>
-    <artifactId>shikelang-10</artifactId>
+    <artifactId>shikelang</artifactId>
     <version>server</version>
     <packaging>jar</packaging>
     <name>shikelang</name>

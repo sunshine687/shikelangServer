@@ -1,6 +1,7 @@
 package com.sunshine687.shikelang.controller;
 
 import com.sunshine687.shikelang.pojo.TypeEnum;
+import com.sunshine687.shikelang.pojo.VideoItem;
 import com.sunshine687.shikelang.service.IMainService;
 import com.sunshine687.shikelang.util.VideoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 //@CrossOrigin(origins = "*", maxAge = 10000)   //处理跨域请求(接收来自某个地址的跨域请求)
@@ -45,7 +44,7 @@ public class MainController {
     //每天小时数为3的倍数时，执行任务
     @Scheduled(cron = "0 0 0,3,6,9,12,15,18,21 * * ?")
     public void task() {
-//        updateDianShiJu();
+        updateDianShiJu();
     }
 
     /**
@@ -54,11 +53,32 @@ public class MainController {
      */
     @RequestMapping("/test")
     public String test(){
-        System.out.println(videoUtils.getRules("第1集").toString());
+        List<VideoItem> lists = new ArrayList<>();
+        VideoItem v1 = new VideoItem();
+        v1.setUpdateIndex(2);
+        lists.add(v1);
+
+        VideoItem v2 = new VideoItem();
+        v2.setUpdateIndex(1);
+        lists.add(v2);
+
+        lists.sort(new Comparator<VideoItem>() {
+            public int compare(VideoItem o1, VideoItem o2) {
+                //按照CityModel的city_code字段进行升序排列
+                if (o1.getUpdateIndex() > o2.getUpdateIndex()) {
+                    return 1;
+                }
+                if (o1.getUpdateIndex().equals(o2.getUpdateIndex())) {
+                    return 0;
+                }
+                return -1;
+            }
+        });
+        System.out.println(lists.toString());
 //        Document dd = videoUtils.httpGet_setTime("https://iqiyi.cdn8-okzy.com/share/56a8da1d3bcb2e9b334a778be5b1d781",30);
 //        System.out.println(dd);
 //       mainService.getCurrentVideo(TypeEnum.DIANSHIJU_GC,"/vod/detail/id/35292.html");
-        mainService.getTest();
+//        mainService.getTest();
         return "|";
     }
 

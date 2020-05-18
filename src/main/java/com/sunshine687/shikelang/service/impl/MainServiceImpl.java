@@ -333,6 +333,7 @@ public class MainServiceImpl implements IMainService {
     public List<VideoItem> getItemsOfVideo(Video video, Document doc,String video_url,List<VideoItem> videoItems) {
         flagStart = System.currentTimeMillis();
         long flagStart_nei = System.currentTimeMillis();
+        //获取到的剧集
         Elements items = doc.select("div.fed-play-data div.fed-play-item ul.fed-part-rows").get(1).select("li a");
         List<Integer> ll = new ArrayList<>();//待处理剧集列表
         List<VideoItem> lists = new ArrayList<>();//剧集列表
@@ -399,6 +400,18 @@ public class MainServiceImpl implements IMainService {
 
                 long end = System.currentTimeMillis();
                 if (ll.size() == 0 && flag) {//获取成功
+                    lists.sort(new Comparator<VideoItem>() {
+                        public int compare(VideoItem o1, VideoItem o2) {
+                            //按照CityModel的city_code字段进行升序排列
+                            if (o1.getUpdateIndex() > o2.getUpdateIndex()) {
+                                return 1;
+                            }
+                            if (o1.getUpdateIndex().equals(o2.getUpdateIndex())) {
+                                return 0;
+                            }
+                            return -1;
+                        }
+                    });
                     LOGGER.error("shikelang-获取'" + video.getName() + "'耗时：" + ((end - flagStart_nei) / 1000) + "秒");
                 }else {
                     long totalTime = (end - flagStart_nei) / 1000;
